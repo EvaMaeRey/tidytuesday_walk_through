@@ -131,7 +131,11 @@ plot +
                        size = 8)) +
   theme(legend.text = 
           element_text(color = "#6d6d6d", 
-                       size = 8))
+                       size = 8)) +
+  theme(legend.background = 
+          element_rect(fill  = "#323232")) +
+  theme(panel.background = 
+          element_rect(fill  = "#323232"))
 ```
 
 `r apply_reveal("complete_teacher_student")`
