@@ -111,7 +111,8 @@ ggplot(data = media_franchises_5) +
   scale_y_continuous(label = scales::dollar) +
   ggthemes::theme_wsj() +
   labs(title = "Revenue generated for\nthe 5 most successful media") +
-  theme(title = element_text(size = 16))
+  theme(title = element_text(size = 16)) +
+  labs(caption = "\n Data from Wikipedia | plot by @david_carayon")
 ```
 
 `r apply_reveal("top_5")`

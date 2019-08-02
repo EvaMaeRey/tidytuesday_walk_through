@@ -3407,6 +3407,37 @@ ggplot(data = media_franchises_5) +
 .column[.content[
 &lt;img src="tidytuesday_highlights_files/figure-html/output_top_5_19-1.png" width="100%" /&gt;
 ]]
+---
+class: split-40
+count: false
+.column[.content[
+
+```r
+ggplot(data = media_franchises_5) +
+  aes(x = original_media) +
+  aes(y = revenue) +
+  aes(fill = original_media) +
+  geom_violin(alpha = 0.3) +
+  ggforce::geom_sina(color = "black",
+                     size = 3, shape = 21) +
+  aes(label = categ) +
+  ggrepel::geom_label_repel(
+    data = media_franchises_5 %&gt;%
+      filter(revenue &gt; 19 * 10^9),
+    color = "black", fill = "wheat",
+    family = "mono", size = 4) +
+  guides(fill = FALSE, color = FALSE) +
+  labs(x = "Original Media", y = "Total revenue") +
+  scale_y_continuous(label = scales::dollar) +
+  ggthemes::theme_wsj() +
+  labs(title = "Revenue generated for\nthe 5 most successful media") +
+  theme(title = element_text(size = 16)) +
+* labs(caption = "\n Data from Wikipedia | plot by @david_carayon")
+```
+]]
+.column[.content[
+&lt;img src="tidytuesday_highlights_files/figure-html/output_top_5_20-1.png" width="100%" /&gt;
+]]
 
 
 
@@ -3533,6 +3564,24 @@ ggplot(data = media_franchises_5) +
 &lt;/style&gt;
 
 ---
+
+# Thanks
+
+Thanks to the plot builders for their willingness to share their work!  
+
+
+---
+
+# The End!
+
+Thanks having a look at this set of #TidyTuesday plots!  
+
+The code for this work lives [**here**](https://github.com/EvaMaeRey/tidytuesday_walk_through).  
+
+Interested in building your own flipbook? It is fun! The code is still underdevelopment and we'd love to have your feedback. A minimal example is [**here**]( https://evamaerey.github.io/little_flipbooks_library/tidytuesday_minimal_example/tidytuesday_minimal_example#1).  
+
+
+
 
 &lt;style type="text/css"&gt;
 .remark-code{line-height: 1.5; font-size: 55%}

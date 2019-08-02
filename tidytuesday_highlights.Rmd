@@ -97,6 +97,24 @@ knitr::include_graphics("figures/top_5.png")
 
 ---
 
+# Thanks
+
+Thanks to the plot builders for their willingness to share their work!  
+
+
+---
+
+# The End!
+
+Thanks having a look at this set of #TidyTuesday plots!  
+
+The code for this work lives [**here**](https://github.com/EvaMaeRey/tidytuesday_walk_through).  
+
+Interested in building your own flipbook? It is fun! The code is still underdevelopment and we'd love to have your feedback. A minimal example is [**here**]( https://evamaerey.github.io/little_flipbooks_library/tidytuesday_minimal_example/tidytuesday_minimal_example#1).  
+
+
+
+
 ```{css, eval = TRUE, echo = F}
 .remark-code{line-height: 1.5; font-size: 55%}
 ```
