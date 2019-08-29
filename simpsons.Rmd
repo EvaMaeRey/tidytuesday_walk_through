@@ -1,0 +1,223 @@
+---
+title: "Simpsons' Guest Appearances are Growing"
+author: "Adaptation of Gil Henriques' Simpsons Plot, by Evangeline Reynolds"
+date: "5/18/2018"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["kunoichi", "ninjutsu"]
+    nature:
+      ratio: "16:9"
+      beforeInit: "https://platform.twitter.com/widgets.js"
+      highlightLines: true
+---
+
+
+
+
+```{r, message = F, warning = F, include = F}
+source("https://raw.githubusercontent.com/EvaMaeRey/little_flipbooks_library/master/xaringan_reveal_parentheses_balanced.R")
+```
+
+
+```{r, include=F}
+knitr::opts_chunk$set(fig.width = 9, message = F, warning = F, 
+                      comment = "", cache = F, fig.height = 5)
+```
+
+
+---
+
+# The original
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">📈 I learned a lot doing this week&#39;s <a href="https://twitter.com/hashtag/TidyTuesday?src=hash&amp;ref_src=twsrc%5Etfw">#TidyTuesday</a>. I had to make the axes and the lines connecting the points look hand-drawn (it takes some jittering!), and learn how to put a figure in the background. Happy with the result! Code below.<a href="https://twitter.com/hashtag/dataviz?src=hash&amp;ref_src=twsrc%5Etfw">#dataviz</a> <a href="https://twitter.com/hashtag/rstats?src=hash&amp;ref_src=twsrc%5Etfw">#rstats</a> <a href="https://twitter.com/hashtag/ggplot2?src=hash&amp;ref_src=twsrc%5Etfw">#ggplot2</a> <a href="https://twitter.com/R4DScommunity?ref_src=twsrc%5Etfw">@R4DScommunity</a> <a href="https://t.co/Gr0w37pbt9">pic.twitter.com/Gr0w37pbt9</a></p>&mdash; Gil Henriques 🌹 (@_Gil_Henriques) <a href="https://twitter.com/_Gil_Henriques/status/1166373844040335360?ref_src=twsrc%5Etfw">August 27, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+
+---
+
+# Loading packages
+
+```{r}
+library(tidyverse)
+```
+
+
+---
+
+# Data cleaning
+
+---
+
+```{r}
+url <- "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-08-27/simpsons-guests.csv"
+raw <- read_delim(file = url, delim = "|", quote = "") %>%
+  mutate(number = strsplit(as.character(number), "; "))
+```
+
+
+---
+
+```{r cleaning, echo = F}
+raw %>%
+  unnest() %>% # Splits rows that contain multiple episodes into multiple rows
+  mutate(season = as.numeric(season)) %>% 
+  group_by(season) %>% 
+  summarize(guests_per_episode = 
+              n_distinct(guest_star) /
+              n_distinct(number)) ->
+clean_data
+```
+
+
+`r apply_reveal("cleaning")`
+
+---
+
+# Attention to detail:  "Hand drawing"
+
+
+One thing that is so charming about this plot is the feeling that Bart Simpson has hand-drawn the figure.  
+
+Gil writes: *I want the axes and the line connecting the points to look hand-drawn, so I will use geom_line + jitter to draw them*
+
+
+---
+
+# spline() to connect points
+
+He uses the spline function, which makes a smooth connection between points, rather than sharp, as a human might do in a rush.
+
+
+Here is the function: 
+
+spline(x, y = NULL, n = 3*length(x), method = "fmm",
+       xmin = min(x), xmax = max(x), xout, ties = mean)
+
+And the description:
+
+"Perform cubic (or Hermite) [spline interpolation](https://en.wikipedia.org/wiki/Spline_interpolation) of given data points, returning either a list of points obtained by the interpolation or a function performing the interpolation."
+
+
+---
+
+```{r shaky_hand, echo = F}
+as.data.frame(spline(x = clean_data$season, 
+                     y = clean_data$guests_per_episode, 
+                     method = "natural")) ->
+  spline_int
+```
+
+`r apply_reveal("shaky_hand")`
+
+
+---
+
+# "Hand drawn" axes with position_jitter()
+
+Then Gil also creates mini datasets for hand drawn axes x and y.  He creates straight horizontal and vertical lines, segmented into small pieces.  He plots these mini data sets with geom_line where the position is jittered.   
+
+
+
+
+---
+
+```{r axes, echo = F}
+data.frame(x = seq(from = 0, to = 30, by = 1), 
+           y = rep(0, 31)) -> 
+  drawn.x.axis
+data.frame(x = rep(0, 21), 
+           y = seq(from = 0, to = 4, by = 0.2)) -> 
+  drawn.y.axis
+```
+
+`r apply_reveal("axes")`
+
+
+
+
+---
+# Plotting
+
+
+---
+
+
+```{r plotting, echo = F}
+clean_data %>% 
+  ggplot() + 
+  aes(x = season) +
+  aes(y = guests_per_episode) +
+  geom_point(size = 4, color = "snow3") + 
+  geom_line(data = spline_int, 
+            mapping = aes(x = x, y = y), 
+            color = "snow3", size = 0.8,
+            position = position_jitter(w = 0.05, h = 0.05)) +
+  geom_line(data = drawn.x.axis, 
+            mapping = aes(x = x, y = y), 
+            color = "snow3", size = 0.8,
+            position = position_jitter(w = 0.0, h = 0.05)) +
+  geom_line(data = drawn.y.axis, 
+            mapping = aes(x = x, y = y), 
+            color = "snow3", size = 0.8,
+            position = position_jitter(w = 0.05, h = 0.0)) +
+  labs(y = "Guests per episode") + 
+  labs(x = "Season") + 
+  labs(title = "The number of guest stars in\nthe Simpsons is increasing") +
+  labs(caption = "@_Gil_Henriques for #TidyTuesday") +
+  ylim(-0.1, 4.3) + 
+  xlim(-0.1, 30.5) + 
+  theme_void() +
+  theme(axis.text = element_text(size = 15, 
+                                   color = "snow3")) +
+  theme(axis.title = element_text(size = 20, color = "snow3")) +
+  theme(plot.title = element_text(size = 25, face = "bold", 
+                                  color = "snow3", 
+                                  hjust = 0.5)) +
+  theme(plot.caption = element_text(color = "snow3")) +
+  theme(plot.margin = margin(t = 1, r = 3, b = 1, l = 1, "cm"))  +
+  theme(axis.title.y = element_text(angle = 90)) ->  
+plot 
+```
+
+`r apply_reveal("plotting")`
+
+---
+
+# Adding background
+
+---
+
+```{r simpsons, echo = F, eval = F, fig.width=9, fig.height=5}
+simpsons_gif_url <- "https://github.com/GilHenriques/TidyTuesdays/blob/master/2019-08-27%20Simpsons%20guest%20stars/chalkboard_simpsons.gif?raw=true"
+plot %>% 
+  ggimage::ggbackground(
+    background = simpsons_gif_url, 
+    by = "height")
+```
+
+`r apply_reveal("simpsons")`
+
+
+---
+
+# Changes from the [original](https://github.com/GilHenriques/TidyTuesdays) and notes to self
+
+
+- I use [slow ggplot principles](https://evamaerey.github.io/ggplot_flipbook/ggplot_flipbook_xaringan.html#3) to provide maximal feedback for each step of the build. 
+- Fonts are still tricky to manage across platforms and in the flipbook setting, so sadly I don't do anything with them, and a less charming plot results.
+- I changed the text color to be off white instead of white, so that you can see it against the theme_void() white background
+- There seems to be some problem with the display when there are list columns in data relates to square brackets. hmmmmm...
+- This should be included in [TidyTuesday walk-throughs](https://evamaerey.github.io/tidytuesday_walk_through/tidytuesday_highlights.html#1) at some point.
+
+
+
+
+
+
+---
+
+
+```{css, eval = TRUE, echo = F}
+.remark-code{line-height: 1.5; font-size: 65%}
+```
+  
